@@ -3,6 +3,7 @@
 #include "wspr.hh"
 #include <QDebug>
 #include <cmath>
+#include <iostream>
 
 #define Fs 16000.
 
@@ -20,8 +21,9 @@ Encoder::~Encoder() {
 bool
 Encoder::setup(ModeId modeId, const QString &message, double freq)
 {
+  qDebug() << "Encode message" << message << "with" << modeId << "at" << freq << "Hz";
+
   Mode mode = (MODE_WSPR == modeId) ? ModeWSPR : ModeJT4;
-  qDebug() << "setup mode " << modeId;
 
   _delay = mode.delay*Fs;
   _phase = 0;
@@ -32,12 +34,15 @@ Encoder::setup(ModeId modeId, const QString &message, double freq)
 	double phi=0;
 	float wdt[4];
 
-  std::string omsg;
   if (MODE_WSPR == modeId)
     gen_wspr(message.toStdString(), symbols);
-  if (MODE_JT4 == modeId)
-    gen_jt4(message.toStdString(), symbols, omsg);
-
+  else if (MODE_JT4 == modeId) {
+    gen_jt4(message.toStdString(), symbols);
+  }
+  std::cerr << "Symbols:";
+  for (size_t i=0; i<symbols.size(); i++)
+    std::cerr << " " << symbols[i];
+  std::cerr << std::endl;
   for (int i=0; i<4; i++) {
     wdt[i] = 2*M_PI*(freq+i*mode.fsk_shift)/Fs;
   }

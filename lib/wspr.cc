@@ -24,15 +24,11 @@ int
 gen_wspr(const std::string &message, std::vector<int> &symbols) {
   char msg[22], data[13];
   memset(msg, ' ', 22);
-  memcpy(msg, message.c_str(), std::min(size_t(21), message.size()));
+  memcpy(msg, message.c_str(), std::min(size_t(22), message.size()));
   memset(data, 0, 13);
 
   int ntype=0;
   wqencode_(msg, &ntype, data);
-  std::cerr << "Type " << ntype << std::endl;
-  for (int i=0; i<13; i++)
-    std::cerr << " " << std::hex << int(data[i]);
-  std::cerr << std::endl;
 
   char sym[206];
   memset(sym, 0, 206);
@@ -41,10 +37,8 @@ gen_wspr(const std::string &message, std::vector<int> &symbols) {
   inter_wspr_(sym, &dir);
 
   symbols.resize(162);
-  std::cerr << "Sym:";
   for (int i=0; i<162; i++) {
     symbols[i] = 2*int(sym[i])+sync_[i];
-    std::cerr << " " << int(symbols[i]);
   }
 
   return ntype;

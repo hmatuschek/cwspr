@@ -20,6 +20,7 @@ protected slots:
   void onStartToggled(bool start);
   void onSetFreq();
   void onSetMode(QAction *action);
+  void onSetText();
 
 protected:
   virtual void keyPressEvent(QKeyEvent *event);
@@ -34,6 +35,7 @@ protected:
   QLineEdit *_message;
   Waterfall *_plot;
   QListView *_rx;
+  QStatusBar *_status;
 };
 
 #endif // MAINWINDOW_HH

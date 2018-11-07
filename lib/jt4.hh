@@ -19,7 +19,7 @@ bool encode4(const std::string &message, std::vector<int> &bits);
 
 /** Generates symbol codes for the given message.
  */
-int gen_jt4(const std::string &message, std::vector<int> &symbols, std::string &outmsg);
+int gen_jt4(const std::string &message, std::vector<int> &symbols);
 
 
 extern Mode ModeJT4;

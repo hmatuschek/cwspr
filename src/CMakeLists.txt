@@ -6,7 +6,7 @@ set(cwspr_MOC_HEADERS
 	sink.hh waterfall.hh)
 
 qt5_wrap_cpp(cwspr_MOC_SOURCES ${cwspr_MOC_HEADERS})
-qt5_add_resources(kochmorse_RCC_SOURCES ../shared/resources.qrc)
+qt5_add_resources(cwsrp_RCC_SOURCES ../shared/resources.qrc)
 
-add_executable(cwspr ${cwspr_SOURCES} ${cwspr_MOC_SOURCES})
+add_executable(cwspr ${cwspr_SOURCES} ${cwspr_MOC_SOURCES} ${cwsrp_RCC_SOURCES})
 target_link_libraries(cwspr libcwspr ${LIBS})

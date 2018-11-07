@@ -1,4 +1,5 @@
 #include "jt4.hh"
+#include <iostream>
 
 Mode ModeJT4 = { MODE_JT4, 206, 60.0, 1.0, 4.375, 4.375 };
 
@@ -14,12 +15,13 @@ encode4(const std::string &message, std::vector<int> &bits) {
 
 
 int
-gen_jt4(const std::string &message, std::vector<int> &symbols, std::string &outmsg) {
-  int ichk, itype;
-  char outm[22];
+gen_jt4(const std::string &message, std::vector<int> &symbols) {
+  int ichk=0, itype=0;
+  char outm[22], msg[22];
+  memset(msg, ' ', 22);
+  memcpy(msg, message.c_str(), std::min(size_t(22), message.size()));
   symbols.resize(207);
-  gen4_(message.c_str(), &ichk, outm, symbols.data(), &itype);
-  outmsg = outm;
+  gen4_(msg, &ichk, outm, symbols.data(), &itype);
   if (ichk)
     return -ichk;
   return itype;
