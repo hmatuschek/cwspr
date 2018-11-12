@@ -5,10 +5,8 @@
 #include <cmath>
 #include <iostream>
 
-#define Fs 16000.
-
 Encoder::Encoder(ModeId mode, const QString &message, double freq, QObject *parent)
-  : Source(parent), _sync(false), _phase(0), _period(0), _buffer(nullptr)
+  : QObject(parent), Source(), _sync(false), _phase(0), _period(0), _buffer(nullptr)
 {
   setup(mode, message, freq);
 }
@@ -35,7 +33,7 @@ Encoder::setup(ModeId modeId, const QString &message, double freq)
 	float wdt[4];
 
   if (MODE_WSPR == modeId)
-    gen_wspr(message.toStdString(), symbols);
+    WSPR::gen_wspr(message.toStdString(), symbols);
   else if (MODE_JT4 == modeId) {
     gen_jt4(message.toStdString(), symbols);
   }

@@ -2,14 +2,14 @@
 #define WATERFALL_HH
 
 #include <QLabel>
-#include "sink.hh"
+#include "interfaces.hh"
 #include <fftw3.h>
 #include <QTimer>
 #include <QImage>
 
 class Application;
 
-class WaterfallSink: public Sink
+class WaterfallSink: public QObject, public Sink
 {
 	Q_OBJECT
 

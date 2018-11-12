@@ -20,7 +20,11 @@ protected slots:
   void onStartToggled(bool start);
   void onSetFreq();
   void onSetMode(QAction *action);
+  void onSetCall();
+  void onSetLocator();
+  void onSetPower();
   void onSetText();
+  void onPTT(bool tx);
 
 protected:
   virtual void keyPressEvent(QKeyEvent *event);
@@ -32,10 +36,14 @@ protected:
   QToolButton *_menuButton;
   QActionGroup *_modes;
   QAction *_freq;
+  QAction *_call;
+  QAction *_loc;
+  QAction *_dBm;
   QLineEdit *_message;
   Waterfall *_plot;
   QListView *_rx;
   QStatusBar *_status;
+  QLabel *_ptt;
 };
 
 #endif // MAINWINDOW_HH

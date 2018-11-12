@@ -1,10 +1,11 @@
 #ifndef ENCODER_HH
 #define ENCODER_HH
 
-#include "source.hh"
+#include <QObject>
+#include "interfaces.hh"
 #include "traits.hh"
 
-class Encoder : public Source
+class Encoder : public QObject, public Source
 {
 	Q_OBJECT
 

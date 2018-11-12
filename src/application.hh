@@ -6,6 +6,8 @@
 #include "encoder.hh"
 #include "keyer.hh"
 #include "waterfall.hh"
+#include <QTimer>
+#include "wsprdecoder.hh"
 
 
 class Application : public QApplication
@@ -26,8 +28,12 @@ public slots:
 	void start();
 	void stop();
 
+signals:
+	void ptt(bool tx);
+
 protected slots:
 	void info();
+	void onPTTTimeOut();
 
 protected:
 	static int _pa_outstream_callback(const void *in, void *out, unsigned long frameCount,
@@ -41,8 +47,12 @@ protected:
 	PaStream *_out;
 	PaStream *_in;
 	Encoder *_encoder;
+  WSPRDecoder *_decoder;
+
 	Keyer *_keyer;
 	WaterfallSink *_waterfall;
+	bool _ptt;
+	QTimer _pttTimer;
 };
 
 #endif // CWSPR_APPLICATION_HH

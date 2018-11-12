@@ -8,7 +8,7 @@
  * Implementation of WaterfallSink
  * ********************************************************************************************* */
 WaterfallSink::WaterfallSink(int lineLen, QObject *parent)
-  : Sink(parent), _Ns(0), _lineLen(lineLen), _Nf(0), _nAvg(16000/_lineLen/2)
+  : QObject(parent), Sink(), _Ns(0), _lineLen(lineLen), _Nf(0), _nAvg(Fs/_lineLen/2)
 {
   _sigBuff = (fftwf_complex *)(fftwf_malloc(2*_lineLen*sizeof(fftwf_complex)));
   _aspec   = new double[_lineLen];
@@ -37,7 +37,7 @@ void
 WaterfallSink::write(const int16_t *samples, qint64 nsamples)
 {
   for (qint64 i=0; i<nsamples; i++) {
-    _sigBuff[_Ns][0] = float(samples[i])/(1<<16);
+    _sigBuff[_Ns][0] = float(samples[i])/(1<<15);
     _sigBuff[_Ns][1] = 0;
     _Ns++;
 
@@ -89,6 +89,8 @@ Waterfall::Waterfall(Application &app, QWidget *parent)
   _updateTimer.setSingleShot(false);
   connect(&_updateTimer, SIGNAL(timeout()), this, SLOT(update()));
   _updateTimer.start();
+
+  update();
 }
 
 WaterfallSink *
@@ -105,7 +107,7 @@ Waterfall::update() {
   double F0 = 300, dF = (900-300)/_plot.width(), F;
   for (int i=0; i<_plot.width(); i++) {
     F = F0 + i*dF;
-    int idx = int(_sink->nFFT()*F/8000);
+    int idx = int(2*_sink->nFFT()*F/Fs);
     double db = 10*std::log10(spec[idx]);
     _plot.setPixel(i,(_plot.height()-1),colormap(db));
   }

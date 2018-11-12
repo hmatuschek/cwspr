@@ -1,6 +1,9 @@
 #ifndef CWSPR_TRAITS_H
 #define CWSPR_TRAITS_H
 
+#define Fs 12000.
+
+
 typedef enum {
 	MODE_JT4, MODE_WSPR
 } ModeId;

@@ -1,9 +1,9 @@
 set(cwspr_SOURCES cwspr.cc
-	application.cc mainwindow.cc source.cc keyer.cc encoder.cc
-	sink.cc waterfall.cc)
+	application.cc mainwindow.cc keyer.cc encoder.cc
+	waterfall.cc)
 set(cwspr_MOC_HEADERS
-	application.hh mainwindow.hh source.hh keyer.hh encoder.hh
-	sink.hh waterfall.hh)
+	application.hh mainwindow.hh keyer.hh encoder.hh
+	waterfall.hh)
 
 qt5_wrap_cpp(cwspr_MOC_SOURCES ${cwspr_MOC_HEADERS})
 qt5_add_resources(cwsrp_RCC_SOURCES ../shared/resources.qrc)

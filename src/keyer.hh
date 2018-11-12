@@ -1,10 +1,11 @@
 #ifndef KEYER_HH
 #define KEYER_HH
 
-#include "source.hh"
+#include <QObject>
+#include "interfaces.hh"
 
 
-class Keyer: public Source
+class Keyer: public QObject, public Source
 {
 	Q_OBJECT
 

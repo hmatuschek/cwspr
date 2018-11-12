@@ -5,9 +5,9 @@
 
 
 Keyer::Keyer(Source *source, QObject *parent)
-  : Source(parent), _src(source), _state(STATE_OFF), _amp(0)
+  : QObject(parent), Source(), _src(source), _state(STATE_OFF), _amp(0)
 {
-  if (_src) _src->setParent(this);
+  // pass...
 }
 
 Keyer::~Keyer() {
