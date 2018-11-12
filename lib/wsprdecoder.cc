@@ -36,6 +36,12 @@ WSPRDecoder::WSPRDecoder(MessageHandler *handler, float F0)
   _sigI   = reinterpret_cast<float *>(fftwf_malloc(sizeof(float)*_N));
   _sigQ   = reinterpret_cast<float *>(fftwf_malloc(sizeof(float)*_N));
 
+  //static const float wdt = 2*M_PI*ModeWSPR.sym_rate/_Fs;
+  for(int i=0; i<512; i++) {
+    //w[i] = std::sin(wdt*i);
+    w[i] = float(std::sin(0.006147931*i));
+  }
+
   // start worker
   _workerRun = true;
   _worker = std::thread(& WSPRDecoder::_decode, this);
@@ -115,7 +121,7 @@ WSPRDecoder::prep_WSPR_signal() {
   size_t M = 32*_N, L=size_t(114*Fs), off=size_t(Fs*ModeWSPR.delay);
   // Skip fist second
   for (size_t i=0; i<L; i++) {
-    _inBuffer[i] = float(_input[off+i])/(1<<15);
+    _inBuffer[i] = float(_input[off+i])/(1<<16);
   }
   for (size_t i=L; i<M; i++) {
     _inBuffer[i] = 0;
@@ -123,7 +129,7 @@ WSPRDecoder::prep_WSPR_signal() {
   fftwf_execute(_rfftFWD);
 
   double dF = Fs/M;
-  size_t i0 = size_t((_F0+112.5)/dF + 0.5);
+  size_t i0 = size_t(_F0/dF + 0.5);
   for (size_t i=0; i<_N; i++) {
     size_t j=i0+i;
     if (i>_N/2)
@@ -148,15 +154,9 @@ WSPRDecoder::decode() {
   static const float df=375.0/256.0/2;
   static const float minrms=52.0 * (symfac/64.0);
   static const unsigned int maxcycles=10000;
-  static const float wdt = 2*M_PI*ModeWSPR.sym_rate/_Fs;
-  float w[512], psavg[512], freq0[200], snr0[200], drift0[200], shift0[200], sync0[200];
   float fmin=-110, fmax=110;
   float dialfreq_error = 0.0;
-  for(int i=0; i<512; i++) {
-    w[i] = std::sin(wdt*i);
-  }
 
-  char more_candidates=0;
   int nblocksize, npasses=2;
   float maxdrift;
 
@@ -189,16 +189,22 @@ WSPRDecoder::decode() {
     }
 
     for (int i=0; i<nffts; i++) {
-      for(int j=0; j<512; j++ ) {
+      for (int j=0; j<512; j++) {
         int k = i*128+j;
-        _fftIn[j][0] = _sigI[k] * w[j];
-        _fftIn[j][1] = _sigQ[k] * w[j];
+        if (k<int(_N)) {
+          _fftIn[j][0] = _sigI[k] * w[j];
+          _fftIn[j][1] = _sigQ[k] * w[j];
+        } else {
+          // zero pad
+          _fftIn[j][0] = 0;
+          _fftIn[j][1] = 0;
+        }
       }
       fftwf_execute(_fftFWD);
       for (int j=0; j<512; j++) {
         int k = j+256;
         if (511 < k)
-          k = k-512;
+          k -= 512;
         ps[j][i] = _fftOut[k][0]*_fftOut[k][0] + _fftOut[k][1]*_fftOut[k][1];
       }
     }
@@ -207,7 +213,7 @@ WSPRDecoder::decode() {
       psavg[i] = 0.0;
     for (int i=0; i<nffts; i++) {
       for (int j=0; j<512; j++) {
-        psavg[j] = psavg[j]+ps[j][i];
+        psavg[j] += ps[j][i];
       }
     }
 
@@ -225,10 +231,9 @@ WSPRDecoder::decode() {
     // Sort spectrum values, then pick off noise level as a percentile
     float tmpsort[411];
     for (int j=0; j<411; j++) {
-      tmpsort[j]=smspec[j];
+      tmpsort[j] = smspec[j];
     }
     qsort(tmpsort, 411, sizeof(float), floatcomp);
-
     // Noise level of spectrum is estimated as 123/411= 30'th percentile
     float noise_level = tmpsort[122];
 
@@ -237,8 +242,8 @@ WSPRDecoder::decode() {
     // corresponding to -7-26.3=-33.3dB in 2500 Hz bandwidth.
     // The corresponding threshold is -42.3 dB in 2500 Hz bandwidth for WSPR-15.
 
-    //this is min snr in wspr bw
-    float min_snr=std::pow(10.0f,-8.0f/10.0f), snr_scaling_factor=26.3f;
+    // this is min snr in wspr bw
+    float min_snr = std::pow(10.0f,-8.0f/10.0f), snr_scaling_factor = 26.3f;
     for (int j=0; j<411; j++) {
       smspec[j] = smspec[j]/noise_level - 1.0f;
       if( smspec[j] < min_snr)
@@ -256,26 +261,12 @@ WSPRDecoder::decode() {
     }
 
     int npk=0;
-    unsigned char candidate;
-    if( more_candidates ) {
-      for(int j=0; j<411; j=j+2) {
-        candidate = (smspec[j]>min_snr) && (npk<200);
-        if ( candidate ) {
-          freq0[npk] = (j-205)*df;
-          snr0[npk]  = 10*log10(smspec[j]) - snr_scaling_factor;
-          npk++;
-        }
-      }
-    } else {
-      for(int j=1; j<410; j++) {
-        candidate = (smspec[j]>smspec[j-1]) &&
-            (smspec[j]>smspec[j+1]) &&
-            (npk<200);
-        if ( candidate ) {
-          freq0[npk]=(j-205)*df;
-          snr0[npk]=10*log10(smspec[j])-snr_scaling_factor;
-          npk++;
-        }
+    for(int j=1; j<410; j++) {
+      bool candidate = (smspec[j]>smspec[j-1]) && (smspec[j]>smspec[j+1]) && (npk<200);
+      if ( candidate ) {
+        freq0[npk] = (j-205)*df;
+        snr0[npk] = 10*log10(smspec[j]) - snr_scaling_factor;
+        npk++;
       }
     }
 
@@ -296,6 +287,7 @@ WSPRDecoder::decode() {
       npk=i;
     }
 
+    std::cerr << " ... " << npk << " peaks in freq. range [" << fmin << "," << fmax << "]" << std::endl;
     // bubble sort on snr, bringing freq along for the ride
     for (int pass = 1; pass <= npk - 1; pass++) {
       for (int k = 0; k < npk - pass ; k++) {

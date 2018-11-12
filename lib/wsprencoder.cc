@@ -5,6 +5,9 @@ WSPREncoder::WSPREncoder(float F0, const std::string &message)
     : Source(), _buffer(nullptr)
 {
   setup(F0, message);
+  _period = int(Fs)*int(ModeWSPR.period);
+  _delay = ModeWSPR.delay*Fs;
+  _buffer = new int16_t[_period];
 }
 
 WSPREncoder::~WSPREncoder()
@@ -16,14 +19,11 @@ WSPREncoder::~WSPREncoder()
 void
 WSPREncoder::setup(float F0, const std::string &message, bool sync, int64_t phase) {
   _F0 = F0;
-  _delay = ModeWSPR.delay*Fs;
   _phase = phase;
-  _period = int(Fs)*int(ModeWSPR.period);
-  _buffer = new int16_t[_period];
   int64_t symlen = int(Fs/ModeWSPR.sym_rate);
 	std::vector<int> symbols;
 	double phi=0;
-	float wdt[4];
+	double wdt[4];
 
   WSPR::gen_wspr(message, symbols);
   for (int i=0; i<4; i++) {
@@ -31,7 +31,7 @@ WSPREncoder::setup(float F0, const std::string &message, bool sync, int64_t phas
   }
 
   for (int64_t phase=0; phase<_period; phase++) {
-    _buffer[phase] = int16_t( (1<<15)*(std::sin(phi)) );
+    _buffer[phase] = int16_t( (1<<14)*(std::sin(phi)) );
     size_t sidx = size_t(phase/symlen);
     if (sidx >= symbols.size())
       sidx = 0;

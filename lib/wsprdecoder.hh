@@ -50,6 +50,7 @@ protected:
 	fftwf_complex *_fftIn, *_fftOut;
 	float *_sigI, *_sigQ;
   float ps[512][359];
+  float w[512], psavg[512], freq0[200], snr0[200], drift0[200], shift0[200], sync0[200];
 	std::list<std::string> _messages;
 };
 

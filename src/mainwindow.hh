@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <QLineEdit>
-#include <QListView>
+#include <QListWidget>
 #include <QAction>
 #include "application.hh"
 #include "waterfall.hh"
@@ -25,6 +25,7 @@ protected slots:
   void onSetPower();
   void onSetText();
   void onPTT(bool tx);
+  void onNewMessage(QString msg);
 
 protected:
   virtual void keyPressEvent(QKeyEvent *event);
@@ -41,7 +42,7 @@ protected:
   QAction *_dBm;
   QLineEdit *_message;
   Waterfall *_plot;
-  QListView *_rx;
+  QListWidget *_rx;
   QStatusBar *_status;
   QLabel *_ptt;
 };

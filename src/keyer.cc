@@ -15,6 +15,11 @@ Keyer::~Keyer() {
 }
 
 void
+Keyer::setSource(Source *src) {
+  _src = src;
+}
+
+void
 Keyer::key(bool down) {
   if (down && (STATE_OFF == _state)) {
     _state = STATE_RISE;

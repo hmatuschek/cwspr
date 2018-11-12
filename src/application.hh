@@ -9,6 +9,19 @@
 #include <QTimer>
 #include "wsprdecoder.hh"
 
+class DecodedMessageHandler: public QObject, public MessageHandler
+{
+  Q_OBJECT
+
+public:
+  explicit DecodedMessageHandler(QObject *parent=0);
+
+  void handle(const std::string &message);
+
+signals:
+  void newMessage(QString msg);
+};
+
 
 class Application : public QApplication
 {
@@ -24,12 +37,14 @@ public:
 
 	WaterfallSink *waterfall();
 
+
 public slots:
 	void start();
 	void stop();
 
 signals:
 	void ptt(bool tx);
+  void newMessage(QString msg);
 
 protected slots:
 	void info();
@@ -48,6 +63,7 @@ protected:
 	PaStream *_in;
 	Encoder *_encoder;
   WSPRDecoder *_decoder;
+  DecodedMessageHandler _msgHandler;
 
 	Keyer *_keyer;
 	WaterfallSink *_waterfall;

@@ -80,7 +80,7 @@ MainWindow::MainWindow(Application &app, QWidget *parent)
   _plot = new Waterfall(app);
   _plot->setMinimumHeight(150);
 
-  _rx = new QListView();
+  _rx = new QListWidget();
 
   _ptt = new QLabel();
   _ptt->setText("RX");
@@ -104,6 +104,7 @@ MainWindow::MainWindow(Application &app, QWidget *parent)
   setCentralWidget(panel);
 
   connect(&_app, SIGNAL(ptt(bool)), this, SLOT(onPTT(bool)));
+  connect(&_app, SIGNAL(newMessage(QString)), this, SLOT(onNewMessage(QString)));
 }
 
 
@@ -190,6 +191,11 @@ MainWindow::onPTT(bool tx) {
     _ptt->setText("TX");
   else
     _ptt->setText("RX");
+}
+
+void
+MainWindow::onNewMessage(QString msg) {
+  _rx->addItem(msg);
 }
 
 void
