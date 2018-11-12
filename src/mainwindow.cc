@@ -14,6 +14,7 @@
 #include <QSettings>
 #include <QInputDialog>
 #include <QStatusBar>
+#include <QDateTime>
 
 
 MainWindow::MainWindow(Application &app, QWidget *parent)
@@ -104,7 +105,7 @@ MainWindow::MainWindow(Application &app, QWidget *parent)
   setCentralWidget(panel);
 
   connect(&_app, SIGNAL(ptt(bool)), this, SLOT(onPTT(bool)));
-  connect(&_app, SIGNAL(newMessage(QString)), this, SLOT(onNewMessage(QString)));
+  connect(&_app, SIGNAL(newMessage(QString,float,float)), this, SLOT(onNewMessage(QString,float,float)));
 }
 
 
@@ -194,8 +195,10 @@ MainWindow::onPTT(bool tx) {
 }
 
 void
-MainWindow::onNewMessage(QString msg) {
-  _rx->addItem(msg);
+MainWindow::onNewMessage(QString msg, float freq, float snr) {
+  QDateTime now = QDateTime::currentDateTimeUtc();
+  msg = QString("%1 @ %2Hz (%3dB): %4").arg(now.toString()).arg(freq).arg(snr).arg(msg);
+  _rx->insertItem(0, msg);
 }
 
 void

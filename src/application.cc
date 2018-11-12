@@ -12,15 +12,15 @@ DecodedMessageHandler::DecodedMessageHandler(QObject *parent)
 }
 
 void
-DecodedMessageHandler::handle(const std::string &msg) {
-  emit newMessage(QString::fromStdString(msg));
+DecodedMessageHandler::handle(const std::string &msg, float freq, float snr) {
+  emit newMessage(QString::fromStdString(msg), freq, snr);
 }
 
 
 
 Application::Application(int &argc, char *argv[])
-  : QApplication(argc, argv), _encoder(nullptr), _decoder(nullptr), _msgHandler(),
-    _keyer(nullptr), _waterfall(nullptr), _ptt(false), _pttTimer()
+  : QApplication(argc, argv), _out(nullptr), _in(nullptr), _encoder(nullptr), _decoder(nullptr),
+    _msgHandler(), _keyer(nullptr), _waterfall(nullptr), _ptt(false), _pttTimer()
 {
   Pa_Initialize();
 
@@ -36,7 +36,7 @@ Application::Application(int &argc, char *argv[])
   _pttTimer.setSingleShot(true);
   connect(&_pttTimer, SIGNAL(timeout()), this, SLOT(onPTTTimeOut()));
 
-  connect(&_msgHandler, SIGNAL(newMessage(QString)), this, SIGNAL(newMessage(QString)));
+  connect(&_msgHandler, SIGNAL(newMessage(QString,float,float)), this, SIGNAL(newMessage(QString,float,float)));
 }
 
 Application::~Application() {
@@ -54,7 +54,7 @@ Application::waterfall() {
 }
 
 void Application::start() {
-  if (Pa_IsStreamActive(_out))
+  if (_out)
     return;
 
   QSettings settings;
@@ -130,9 +130,11 @@ void Application::start() {
 void Application::stop() {
   Pa_StopStream(_out);
   Pa_CloseStream(_out);
+  _out = nullptr;
 
   Pa_StopStream(_in);
   Pa_CloseStream(_in);
+  _in = nullptr;
 
   _keyer->setSource(nullptr);
 

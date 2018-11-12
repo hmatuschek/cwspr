@@ -16,10 +16,10 @@ class DecodedMessageHandler: public QObject, public MessageHandler
 public:
   explicit DecodedMessageHandler(QObject *parent=0);
 
-  void handle(const std::string &message);
+  void handle(const std::string &message, float freq, float snr);
 
 signals:
-  void newMessage(QString msg);
+  void newMessage(QString msg, float freq, float snr);
 };
 
 
@@ -44,7 +44,7 @@ public slots:
 
 signals:
 	void ptt(bool tx);
-  void newMessage(QString msg);
+  void newMessage(QString msg, float freq, float snr);
 
 protected slots:
 	void info();

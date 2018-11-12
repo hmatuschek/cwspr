@@ -25,7 +25,7 @@ protected slots:
   void onSetPower();
   void onSetText();
   void onPTT(bool tx);
-  void onNewMessage(QString msg);
+  void onNewMessage(QString msg, float freq, float snr);
 
 protected:
   virtual void keyPressEvent(QKeyEvent *event);

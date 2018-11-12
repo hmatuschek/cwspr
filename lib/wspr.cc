@@ -3,6 +3,7 @@
 #include "traits.hh"
 #include "fano.h"
 #include <cmath>
+#include <cstring>
 
 
 extern "C" {

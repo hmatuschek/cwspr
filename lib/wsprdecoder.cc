@@ -493,7 +493,7 @@ WSPRDecoder::decode() {
           allcalls[callsign] = f1;
           std::cerr << "Got " << call_loc_pow << std::endl;
           if (_msgHandler)
-            _msgHandler->handle(call_loc_pow);
+            _msgHandler->handle(call_loc_pow, _F0+freq0[j], snr0[j]);
         }
       }
     }

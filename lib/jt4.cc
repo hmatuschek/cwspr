@@ -1,5 +1,6 @@
 #include "jt4.hh"
 #include <iostream>
+#include <cstring>
 
 Mode ModeJT4 = { MODE_JT4, 206, 60.0, 1.0, 4.375, 4.375 };
 

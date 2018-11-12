@@ -13,7 +13,7 @@ protected:
 public:
 	virtual ~MessageHandler();
 
-	virtual void handle(const std::string &message) = 0;
+	virtual void handle(const std::string &message, float freq, float snr) = 0;
 };
 
 
